@@ -12,4 +12,4 @@
 /videos/edit -> Edit Video
 /videos/delete -> Delete Video
 /videos/comments -> Comment on a video
-/vidoes/comments -> Delete A Comment of a vid
+/vidoes/comments -> Delete A Comment of a video
