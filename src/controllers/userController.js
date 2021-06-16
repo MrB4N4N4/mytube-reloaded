@@ -108,6 +108,7 @@ export const finishGithubLogin = async (req, res) => {
         },
       })
     ).json();
+    console.log("JSON", emailData);
     const emailObj = emailData.find(
       (email) => email.primary === true && email.verified === true
     );
@@ -143,6 +144,7 @@ export const logout = (req, res) => {
 export const getEdit = (req, res) => {
   return res.render("edit-profile", { pageTitle: "Edit Profile" });
 };
+
 export const postEdit = async (req, res) => {
   const {
     session: {
@@ -151,11 +153,34 @@ export const postEdit = async (req, res) => {
     body: { name, email, username, location },
   } = req;
 
-  await User.findByIdAndUpdate(_id, {
-    name,
-    email,
-    username,
-    location,
-  });
+  const findUser = await User.find({ $or: [{ username }, { email }] });
+  const resultIds = [];
+
+  findUser.forEach((element) => resultIds.push(element["_id"].toString()));
+
+  if (resultIds.includes(_id)) {
+    resultIds.splice(resultIds.indexOf(_id), 1);
+  }
+
+  if (resultIds.length > 0) {
+    return res.render("edit-profile", {
+      pageTitle: "Edit Profile",
+      errorMessage: "Username/Email already taken",
+    });
+  }
+  
+    const updatedUser = await User.findByIdAndUpdate(
+    _id,
+    {
+      name,
+      email,
+      username,
+      location,
+    },
+    { new: true }
+  );
+  req.session.user = updatedUser;
+  return res.redirect("/users/edit");
 };
+
 export const see = (req, res) => res.send("See");
