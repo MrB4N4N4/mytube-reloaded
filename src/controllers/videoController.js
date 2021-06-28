@@ -1,4 +1,5 @@
 import Video from "../models/Video";
+import User from "../models/User";
 
 export const home = async (req, res) => {
   const videos = await Video.find({}).sort({ createdAt: "desc" }); // MongoDb Query!!!, Only use await in async function!!
@@ -7,10 +8,11 @@ export const home = async (req, res) => {
 export const watch = async (req, res) => {
   const { id } = req.params;
   const video = await Video.findById(id);
+  const owner = await User.findById(video.owner);
   if (!video) {
     return req.status(404).render("404", { pageTitle: "Video not found." });
   }
-  return res.render("watch", { pageTitle: video.title, video });
+  return res.render("watch", { pageTitle: video.title, video, owner});
 };
 export const getEdit = async (req, res) => {
   const { id } = req.params;
@@ -41,11 +43,17 @@ export const getUpload = (req, res) => {
 };
 
 export const postUpload = async (req, res) => {
+  const {
+    user: { _id },
+  } = req.session;
+  const { path: fileUrl } = req.file;
   const { title, description, hashtags } = req.body;
   try {
     await Video.create({
       title,
       description,
+      fileUrl,
+      owner: _id,
       hashtags: Video.formatHashtags(hashtags),
     });
     return res.redirect("/");
@@ -69,7 +77,7 @@ export const search = async (req, res) => {
   if (keyword) {
     videos = await Video.find({
       title: {
-        $regex: new RegExp(keyword, "i")
+        $regex: new RegExp(keyword, "i"),
       },
     });
   }
