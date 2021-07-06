@@ -17,6 +17,8 @@ let controlsMovementTimeout = null;
 let volumeValue = 0.5;
 video.volume = volumeValue;
 
+console.log(videoContainer.dataset);
+
 const handlePlayClick = (e) => {
   if (video.paused) {
     video.play();
@@ -101,10 +103,15 @@ const handleMouseLeave = () => {
 };
 
 const handleSpaceDown = (e) => {
-  if(window.event.keyCode == 32){
-    handlePlayClick(); 
+  if (window.event.keyCode == 32) {
+    handlePlayClick();
   }
-}
+};
+
+const handleEnded = () => {
+  const { id } = videoContainer.dataset;
+  fetch(`/api/videos/${id}/view`, { method: "POST" });
+};
 
 playBtn.addEventListener("click", handlePlayClick);
 muteBtn.addEventListener("click", handleMuteClick);
@@ -112,7 +119,8 @@ volumeRange.addEventListener("input", handleVolumeChange);
 video.addEventListener("loadeddata", handleLoadedMetadata);
 video.addEventListener("timeupdate", handleTimeUpdate);
 video.addEventListener("click", handlePlayClick);
-document.addEventListener("keydown", handleSpaceDown)
+video.addEventListener("ended", handleEnded);
+document.addEventListener("keydown", handleSpaceDown);
 videoContainer.addEventListener("mousemove", handleMouseMove);
 videoContainer.addEventListener("mouseleave", handleMouseLeave);
 timeline.addEventListener("input", handleTimelineChange);
