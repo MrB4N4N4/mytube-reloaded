@@ -17,8 +17,6 @@ let controlsMovementTimeout = null;
 let volumeValue = 0.5;
 video.volume = volumeValue;
 
-console.log(videoContainer.dataset);
-
 const handlePlayClick = (e) => {
   if (video.paused) {
     video.play();
